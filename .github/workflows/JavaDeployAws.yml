@@ -1,10 +1,14 @@
-name: Build Docker Image
+name: Java CI with Maven
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
+
+env:
+  CLUSTER_NAME: EKS-QUICK-SERVE
+  AWS_REGION: us-east-1
 
 jobs:
   build-docker-image:
@@ -16,9 +20,16 @@ jobs:
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
-        java-version: 17
+        distribution: 'adoptium'  # Pode ser 'adoptium', 'zulu', 'amazon', ou 'oracle'
+        java-version: '17'
 
-    - name: Build Docker Image (skip tests)
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+    - name: Build Docker Image
       run: |
         mvn clean package -DskipTests
         IMAGE_NAME=quick-serve-api-pedido:1.0
@@ -29,6 +40,7 @@ jobs:
       run: |
         docker tag $IMAGE_NAME ${{ secrets.DOCKER_HUB_USERNAME }}/$IMAGE_NAME
         docker push ${{ secrets.DOCKER_HUB_USERNAME }}/$IMAGE_NAME
+
 
   # check-cluster:
   #   runs-on: ubuntu-latest
