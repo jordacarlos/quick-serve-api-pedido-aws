@@ -42,7 +42,6 @@ jobs:
     # Compila o projeto com Maven, ignorando os testes
     - name: Build Docker Image
       run: |
-        mvn clean package -DskipTests
         IMAGE_NAME=quick-serve-api-pedido:1.0
         docker build -t $IMAGE_NAME .
         echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
