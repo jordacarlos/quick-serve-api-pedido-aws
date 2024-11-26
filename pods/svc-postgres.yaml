@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-quick-serve-db
+spec:
+  #type: ClusterIP
+  type: NodePort
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+      nodePort: 30082
+  selector:
+    app: quick-serve-db

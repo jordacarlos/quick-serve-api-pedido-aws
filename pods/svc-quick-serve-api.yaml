@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-quick-serve-api
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 8087
+      nodePort: 30081
+  selector:
+    app: quick-serve-api

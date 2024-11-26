@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: Quick Serve API
+  profiles:
+    active:
+      - ${SPRING_PROFILES_ACTIVE_ENVIRONMENT}
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+  datasource:
+    hikari:
+      pool-name: quick-serve-api
+      maximum-pool-size: 5
+      minimum-idle: 3
+      max-lifetime: 1800000
+      idle-timeout: 30000
+  flyway:
+    baseline-on-migrate: true
+    locations: "classpath:/db/migration/postgres"
+  servlet:
+    multipart: # Enable multipart uploads
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 200MB
+      max-request-size: 215MB
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true # Se receber atributo desconhecido o spring retornara um erro

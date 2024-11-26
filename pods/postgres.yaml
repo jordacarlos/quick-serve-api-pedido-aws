@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quick-serve-db-deployment
+  annotations:
+    author: 'Grupo 51 - Fiap Postech - 7SOAT'
+    app-version: 1.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quick-serve-db
+  template:
+    metadata:
+      labels:
+        app: quick-serve-db
+    spec:
+      containers:
+        - name: quick-serve-db
+          image: postgres:14
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: quick-serve-db-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: quick-serve-db-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: quick-serve-db-config
+                  key: POSTGRES_DB
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-data
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: pvc-quick-serve-db-claim

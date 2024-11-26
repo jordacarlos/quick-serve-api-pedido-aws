@@ -1,0 +1,63 @@
+version: '3.7'
+services:
+       
+  quick-serve-api:
+    image: fiap-7soat-51/quick-serve-api:0.1
+    build:
+      context: ./
+    container_name: quick-serve-api
+    environment:
+      - 'SPRING_PROFILES_ACTIVE_ENVIRONMENT=${APP_ENVIRONMENT}'
+      - 'SPRING_DATASOURCE_PLATFORM=${DB_PLATFORM}'
+      - 'SPRING_DATASOURCE_URL=jdbc:postgresql://quick-serve-db:5432/${DB_DATABASE}'
+      - 'SPRING_DATASOURCE_USERNAME=${DB_USER}'
+      - 'SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}'
+      - 'SPRING_DATASOURCE_DRIVER=${DB_DIALECT}'
+    ports:
+      - "${APP_PORT}:8087" #APP_ENVIRONMENT=production
+      #- "${APP_PORT}:8088" #APP_ENVIRONMENT=development
+    depends_on:
+      - quick-serve-db
+    networks:
+      - network-quick-serve
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  quick-serve-db:
+    image: postgres:14
+    container_name: quick-serve-db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - ${DB_HOST_DATA}:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT}:5432"
+    networks:
+      - network-quick-serve
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  quick-serve-pgadmin:
+    image: dpage/pgadmin4
+    container_name: quick-serve-db-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${DB_PGADMIN_USER}
+      PGADMIN_DEFAULT_PASSWORD: ${DB_PGADMIN_PASSWORD}
+    ports:
+      - "${DB_PGADMIN_PORT}:80"
+    depends_on:
+      - quick-serve-db
+    networks:
+      - network-quick-serve  
+
+networks:
+
+  network-quick-serve:
+    name: network-quick-serve
+    driver: bridge

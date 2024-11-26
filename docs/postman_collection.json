@@ -1,0 +1,421 @@
+{
+	"info": {
+		"_postman_id": "9c5880d7-0639-40ed-b5ff-146314896844",
+		"name": "QuickServe-7SOAT-GRUPO51",
+		"description": "Collection para validação de todos os endpoints da API QuickServe",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15831990"
+	},
+	"item": [
+		{
+			"name": "01 - Customer",
+			"item": [
+				{
+					"name": "1.1 - Create Customer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Fulano da Silva\",\r\n    \"email\": \"fulano@gmail.com\",\r\n    \"cpf\": \"98765432198\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/quick_service/customers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"customers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.2 - List All Customers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/quick_service/customers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"customers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.3 - Get CustomerByCPF",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/quick_service/customers/auth/98765432198",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"customers",
+								"auth",
+								"98765432198"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.4 - Get CustomerByID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/quick_service/customers/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"customers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.5 - UpdateCustomerByID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 1,\r\n    \"name\": \"Ciclano da Silva\",\r\n    \"email\": \"ciclano@gmail.com\",\r\n    \"cpf\": \"98765432198\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/quick_service/customers/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"customers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.6 - DeleteCustomerByID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/quick_service/customers/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"customers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "02 - Product",
+			"item": [
+				{
+					"name": "2.1 - Create Product 1",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"PEPSI\",\r\n  \"category\": \"BEBIDA\",\r\n  \"price\": 5,\r\n  \"description\": \"Refrigerante a base de cola\",\r\n  \"imagePath\": \"/src/pepsi-1.png\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/quick_service/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 - Create Product 2",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Quick Feliz\",\r\n  \"category\": \"LANCHE\",\r\n  \"price\": 15,\r\n  \"description\": \"Lanche com hambuguer de carne, salada e ketchup\",\r\n  \"imagePath\": \"/src/quicklanche-1.png\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/quick_service/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 - List All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/quick_service/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.4 - List All Products By Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/quick_service/products/by_category/BEBIDA",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"products",
+								"by_category",
+								"BEBIDA"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.5 - UpdateProductByID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Quick Feliz\",\r\n  \"category\": \"LANCHE\",\r\n  \"price\": 35,\r\n  \"description\": \"Lanche com hambuguer de carne, salada e ketchup\",\r\n  \"imagePath\": \"/src/quicklanche-1.png\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/quick_service/products/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"products",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.6 - DeleteProductByID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/quick_service/products/7",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"products",
+								"7"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3 - Order",
+			"item": [
+				{
+					"name": "3.1  - Create Order",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"customerID\": \"1\",\r\n    \"status\": \"RECEBIDO\",\r\n    \"paymentStatus\": \"PENDENTE\",\r\n    \"orderItems\": [\r\n        {\r\n            \"id\": 1,\r\n            \"name\": \"PEPSI\",\r\n            \"category\": \"BEBIDA\",\r\n            \"price\": 5.0,\r\n            \"description\": \"Refrigerante a base de cola\",\r\n            \"imagePath\": \"/src/pepsi-1.png\"\r\n        },\r\n        {\r\n            \"id\": 2,\r\n            \"name\": \"Quick Feliz\",\r\n            \"category\": \"LANCHE\",\r\n            \"price\": 35,\r\n            \"description\": \"Lanche com hambuguer de carne, salada e ketchup\",\r\n            \"imagePath\": \"/src/quicklanche-1.png\"\r\n        }\r\n    ],\r\n    \"totalOrderValue\": 40\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/quick_service/orders",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 - List All Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/quick_service/orders",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.3  - UpdateOrder Status",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/quick_service/orders/1/EM_PREPARACAO",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"orders",
+								"1",
+								"EM_PREPARACAO"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.4 - GetPaymentStatus",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/quick_service/orders/payment/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"orders",
+								"payment",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.5 - ListOrders - Order by Status and Date",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/quick_service/orders/list",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"orders",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.3  - ApprovePayment",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/quick_service/orders/payment-approver/1/APROVADO",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"quick_service",
+								"orders",
+								"payment-approver",
+								"1",
+								"APROVADO"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

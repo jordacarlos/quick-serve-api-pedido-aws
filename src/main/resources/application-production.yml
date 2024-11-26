@@ -1,0 +1,12 @@
+server:
+  port: 8087
+
+spring:
+  datasource:
+    platform: ${SPRING_DATASOURCE_PLATFORM}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driverClassName: ${SPRING_DATASOURCE_DRIVER}
+  jpa:
+    show-sql: false

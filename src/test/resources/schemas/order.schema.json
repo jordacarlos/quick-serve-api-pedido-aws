@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "required": [
+    "id",
+    "customerID",
+    "status",
+    "paymentStatus",
+    "orderItems",
+    "totalOrderValue"
+  ],
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "customerID": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "paymentStatus": {
+      "type": "string"
+    },
+    "orderItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "category",
+          "price",
+          "description",
+          "imagePath"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "imagePath": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "totalOrderValue": {
+      "type": "number"
+    }
+  }
+}

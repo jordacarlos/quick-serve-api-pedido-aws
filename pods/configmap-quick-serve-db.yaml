@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quick-serve-db-config
+  labels:
+    name: quick-serve-db-config
+data:
+  POSTGRES_DB: quick-serve

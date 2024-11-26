@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quick-serve-api-deployment
+  labels: 
+    app: quick-serve-api-deployment
+  annotations:
+    author: Grupo 51 - Fiap Postech - 7SOAT
+    app-version: 1.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quick-serve-api
+  template:
+    metadata:
+      labels:
+        app: quick-serve-api
+    spec:
+      containers:
+        - name: quick-serve-api
+          image: arterodocker/quick-serve-api:2.0.0
+          ports:
+            - containerPort: 8087
+          resources:
+            limits:
+              cpu: "1"
+            requests:
+              cpu: 500m
+          env:
+            - name: SPRING_PROFILES_ACTIVE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: quick-serve-api-config
+                  key: SPRING_PROFILES_ACTIVE_ENVIRONMENT
+            - name: SPRING_DATASOURCE_PLATFORM
+              valueFrom:
+                configMapKeyRef:
+                  name: quick-serve-api-config
+                  key: SPRING_DATASOURCE_PLATFORM
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: quick-serve-api-secret
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: quick-serve-db-secret
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: quick-serve-db-secret
+                  key: POSTGRES_PASSWORD
+            - name: SPRING_DATASOURCE_DRIVER
+              valueFrom:
+                configMapKeyRef:
+                  name: quick-serve-api-config
+                  key: SPRING_DATASOURCE_DRIVER
+            - name: APP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: quick-serve-api-config
+                  key: APP_PORT

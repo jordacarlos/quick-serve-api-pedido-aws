@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-quick-serve-db
+  labels:
+    name: pv-quick-serve-db
+spec:
+  storageClassName: local-storage
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem  # can be Filesystem or Block (default is Filesystem)
+  accessModes:
+    - ReadWriteMany   # Can be ReadWriteOnce, ReadOnlyMany, ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain  # Can be Retain, Recycle, Delete (default is Delete)
+  hostPath:
+    path: /mnt/c/DATA_POSTGRES_KUBERNETES/quick-serve-db
