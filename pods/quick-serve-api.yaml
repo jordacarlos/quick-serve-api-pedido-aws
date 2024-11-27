@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: quick-serve-api
-          image: arterodocker/quick-serve-api:2.0.0
+          image: jordajesus/quick-serve-api-pedido:1.0
           ports:
             - containerPort: 8087
           resources:
