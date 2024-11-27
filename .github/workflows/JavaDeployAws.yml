@@ -81,7 +81,7 @@ jobs:
           aws eks create-cluster \
             --name $CLUSTER_NAME \
             --role-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/LabRole \
-            --resources-vpc-config subnetIds=subnet-0ccd3fe783de143a2,subnet-0fa695d42ad8afd9d,securityGroupIds=sg-0e67dd9b20c5af14c,endpointPublicAccess=true,endpointPrivateAccess=true,publicAccessCidrs="0.0.0.0/0" \
+            --resources-vpc-config subnetIds=subnet-0807f6b41b9cb485b,subnet-0cabc9014558f2308,subnet-06f435aa36848d08c,securityGroupIds=sg-0e67dd9b20c5af14c,endpointPublicAccess=true,endpointPrivateAccess=true,publicAccessCidrs="0.0.0.0/0" \
             --kubernetes-version 1.29 \
             --logging '{"clusterLogging":[{"types":["api","audit","authenticator","controllerManager","scheduler"],"enabled":false}]}'
 
