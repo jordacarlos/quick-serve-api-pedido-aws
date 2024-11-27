@@ -90,21 +90,20 @@ jobs:
         run: |
           # Verificar se a regra já existe
           RULE_EXISTS=$(aws ec2 describe-security-groups \
-            --group-ids $SG_ID \
+            --group-ids ${{ env.SG_ID }} \
             --query "SecurityGroups[0].IpPermissions[?IpRanges[?CidrIp=='0.0.0.0/0']] | [0]" \
             --output text)
-
           if [ "$RULE_EXISTS" == "None" ]; then
             echo "Ingress rule does not exist. Adding rule..."
             aws ec2 authorize-security-group-ingress \
-              --group-id $SG_ID \
+              --group-id ${{ env.SG_ID }} \
               --protocol all \
               --port -1 \
               --cidr 0.0.0.0/0
           else
             echo "Ingress rule already exists. Skipping authorization."
           fi
-          
+
       - name: Check if EKS Cluster Exists
         id: check-cluster
         run: |
@@ -114,20 +113,52 @@ jobs:
           else
             echo "Cluster does not exist."
             echo "cluster_exists=false" >> $GITHUB_ENV
-          fi
+
       - name: Create EKS Cluster
         if: env.cluster_exists == 'false'
         run: |
           aws eks create-cluster \
             --name ${{ env.CLUSTER_NAME }} \
             --role-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/LabRole \
-            --resources-vpc-config subnetIds=subnet-0807f6b41b9cb485b,subnet-0cabc9014558f2308,subnet-06f435aa36848d08c,securityGroupIds=$SG_ID,endpointPublicAccess=true,endpointPrivateAccess=true,publicAccessCidrs="0.0.0.0/0" \
+            --resources-vpc-config subnetIds=subnet-0807f6b41b9cb485b,subnet-0cabc9014558f2308,subnet-06f435aa36848d08c,securityGroupIds=${{ env.SG_ID }},endpointPublicAccess=true,endpointPrivateAccess=true,publicAccessCidrs="0.0.0.0/0" \
             --kubernetes-version 1.29 \
             --logging '{"clusterLogging":[{"types":["api","audit","authenticator","controllerManager","scheduler"],"enabled":false}]}'
+
       - name: Wait for EKS Cluster to be Active
         if: env.cluster_exists == 'false'
         run: |
           aws eks wait cluster-active --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+
+      - name: Check if EKS Node Group Exists
+        id: check-nodegroup
+        run: |
+          if aws eks describe-nodegroup --cluster-name ${{ env.CLUSTER_NAME }} --nodegroup-name ${{ env.NODEGROUP_NAME }} > /dev/null 2>&1; then
+            echo "Node Group exists."
+            echo "nodegroup_exists=true" >> $GITHUB_ENV
+          else
+            echo "Node Group does not exist."
+            echo "nodegroup_exists=false" >> $GITHUB_ENV
+
+      - name: Create EKS Node Group
+        if: env.nodegroup_exists == 'false'
+        run: |
+          aws eks create-nodegroup \
+            --cluster-name ${{ env.CLUSTER_NAME }} \
+            --nodegroup-name ${{ env.NODEGROUP_NAME }} \
+            --subnets subnet-0807f6b41b9cb485b subnet-0cabc9014558f2308 subnet-06f435aa36848d08c \
+            --node-role arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/LabRole \
+            --scaling-config minSize=1,maxSize=5,desiredSize=2 \
+            --instance-types t3.medium \
+            --ami-type AL2_x86_64 \
+            --disk-size 20 \
+            --capacity-type ON_DEMAND \
+            --update-config maxUnavailable=1
+
+      - name: Wait for EKS Node Group to be Active
+        if: env.nodegroup_exists == 'false'
+        run: |
+          aws eks wait nodegroup-active --cluster-name ${{ env.CLUSTER_NAME }} --nodegroup-name ${{ env.NODEGROUP_NAME }} --region ${{ env.AWS_REGION }}
+
 
   deploy-application:
     runs-on: ubuntu-latest
@@ -141,7 +172,6 @@ jobs:
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
           kubectl version --client
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -164,4 +194,4 @@ jobs:
           
       - name: Verify Deployment
         run: kubectl get pods,svc,configmaps,secrets,deployments,pv,pvc,hpa
-          
+        
