@@ -73,6 +73,7 @@ jobs:
           else
             echo "Cluster does not exist."
             echo "cluster_exists=false" >> $GITHUB_ENV
+          fi
 
       - name: Create EKS Cluster
         if: env.cluster_exists == 'false'
