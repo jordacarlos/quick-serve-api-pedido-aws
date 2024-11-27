@@ -86,13 +86,25 @@ jobs:
           echo "Created Security Group: $SG_ID"
           echo "SG_ID=$SG_ID" >> $GITHUB_ENV
 
-      - name: Authorize Security Group Ingress
+      - name: Check and Authorize Security Group Ingress
         run: |
-          aws ec2 authorize-security-group-ingress \
-            --group-id $SG_ID \
-            --protocol all \
-            --port -1 \
-            --cidr 0.0.0.0/0
+          # Verificar se a regra já existe
+          RULE_EXISTS=$(aws ec2 describe-security-groups \
+            --group-ids $SG_ID \
+            --query "SecurityGroups[0].IpPermissions[?IpRanges[?CidrIp=='0.0.0.0/0']] | [0]" \
+            --output text)
+
+          if [ "$RULE_EXISTS" == "None" ]; then
+            echo "Ingress rule does not exist. Adding rule..."
+            aws ec2 authorize-security-group-ingress \
+              --group-id $SG_ID \
+              --protocol all \
+              --port -1 \
+              --cidr 0.0.0.0/0
+          else
+            echo "Ingress rule already exists. Skipping authorization."
+          fi
+          
       - name: Check if EKS Cluster Exists
         id: check-cluster
         run: |
