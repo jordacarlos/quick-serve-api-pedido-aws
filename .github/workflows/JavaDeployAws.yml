@@ -10,6 +10,8 @@ env:
   CLUSTER_NAME: EKS-QUICK-SERVE
   AWS_REGION: us-east-1
   NODEGROUP_NAME: quick-serve
+  VPC_ID: vpc-08325c03e3c0c4699
+  SG_NAME: eks-cluster-sg
 
 jobs:
   build-docker-image:
@@ -40,7 +42,6 @@ jobs:
           IMAGE_NAME=quick-serve-api-pedido:1.0
           docker build -t $IMAGE_NAME .
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
-
       - name: Push Docker Image to Docker Hub
         run: |
           docker tag $IMAGE_NAME ${{ secrets.DOCKER_HUB_USERNAME }}/$IMAGE_NAME
@@ -55,105 +56,64 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{env.AWS_REGION}}
+          aws-region: ${{ env.AWS_REGION }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
 
-      - name: Get Security Group ID
-        id: get-sg
+      - name: Check if Security Group Exists
+        id: check-sg
         run: |
-          SECURITY_GROUP_ID=$(aws ec2 describe-security-groups \
-            --filters Name=vpc-id,Values=vpc-08325c03e3c0c4699 \
+          SG_ID=$(aws ec2 describe-security-groups \
+            --filters Name=vpc-id,Values=${{ env.VPC_ID }} Name=group-name,Values=${{ env.SG_NAME }} \
             --query "SecurityGroups[0].GroupId" \
-            --output text)
-          echo "SECURITY_GROUP_ID=$SECURITY_GROUP_ID" >> $GITHUB_ENV
+            --output text 2>/dev/null || echo "null")
+          if [ "$SG_ID" != "null" ]; then
+            echo "Security Group already exists: $SG_ID"
+            echo "SG_ID=$SG_ID" >> $GITHUB_ENV
+          else
+            echo "Security Group does not exist."
+            echo "SG_ID=" >> $GITHUB_ENV
+          fi
 
+      - name: Create Security Group
+        if: env.SG_ID == ''
+        run: |
+          SG_ID=$(aws ec2 create-security-group \
+            --group-name ${{ env.SG_NAME }} \
+            --description "Security Group for EKS Cluster" \
+            --vpc-id ${{ env.VPC_ID }} \
+            --query "GroupId" \
+            --output text)
+          echo "Created Security Group: $SG_ID"
+          echo "SG_ID=$SG_ID" >> $GITHUB_ENV
+
+      - name: Authorize Security Group Ingress
+        run: |
+          aws ec2 authorize-security-group-ingress \
+            --group-id $SG_ID \
+            --protocol all \
+            --port -1 \
+            --cidr 0.0.0.0/0
       - name: Check if EKS Cluster Exists
         id: check-cluster
         run: |
-          if aws eks describe-cluster --name $CLUSTER_NAME --region $AWS_REGION > /dev/null 2>&1; then
+          if aws eks describe-cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }} > /dev/null 2>&1; then
             echo "Cluster exists."
             echo "cluster_exists=true" >> $GITHUB_ENV
           else
             echo "Cluster does not exist."
             echo "cluster_exists=false" >> $GITHUB_ENV
           fi
-
       - name: Create EKS Cluster
         if: env.cluster_exists == 'false'
         run: |
           aws eks create-cluster \
-            --name $CLUSTER_NAME \
+            --name ${{ env.CLUSTER_NAME }} \
             --role-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/LabRole \
-            --resources-vpc-config subnetIds=subnet-0807f6b41b9cb485b,subnet-0cabc9014558f2308,subnet-06f435aa36848d08c,securityGroupIds=$SECURITY_GROUP_ID,endpointPublicAccess=true,endpointPrivateAccess=true,publicAccessCidrs="0.0.0.0/0" \
+            --resources-vpc-config subnetIds=subnet-0807f6b41b9cb485b,subnet-0cabc9014558f2308,subnet-06f435aa36848d08c,securityGroupIds=$SG_ID,endpointPublicAccess=true,endpointPrivateAccess=true,publicAccessCidrs="0.0.0.0/0" \
             --kubernetes-version 1.29 \
             --logging '{"clusterLogging":[{"types":["api","audit","authenticator","controllerManager","scheduler"],"enabled":false}]}'
-
       - name: Wait for EKS Cluster to be Active
         if: env.cluster_exists == 'false'
         run: |
-          aws eks wait cluster-active --name $CLUSTER_NAME --region $AWS_REGION
-
-      - name: Check if EKS Node Group Exists
-        id: check-nodegroup
-        run: |
-          if aws eks describe-nodegroup --cluster-name $CLUSTER_NAME --nodegroup-name $NODEGROUP_NAME > /dev/null 2>&1; then
-            echo "Node Group exists."
-            echo "nodegroup_exists=true" >> $GITHUB_ENV
-          else
-            echo "Node Group does not exist."
-            echo "nodegroup_exists=false" >> $GITHUB_ENV
-          fi
-
-      - name: Create EKS Node Group
-        if: env.nodegroup_exists == 'false'
-        run: |
-          aws eks create-nodegroup \
-            --cluster-name $CLUSTER_NAME \
-            --nodegroup-name $NODEGROUP_NAME \
-            --subnets subnet-0807f6b41b9cb485b subnet-0cabc9014558f2308 subnet-06f435aa36848d08c \
-            --node-role arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/LabRole \
-            --scaling-config minSize=1,maxSize=5,desiredSize=2 \
-            --instance-types t3.medium \
-            --ami-type AL2_x86_64 \
-            --disk-size 20 \
-            --capacity-type ON_DEMAND \
-            --update-config maxUnavailable=1
-
-      - name: Wait for EKS Node Group to be Active
-        if: env.nodegroup_exists == 'false'
-        run: |
-          aws eks wait nodegroup-active --cluster-name $CLUSTER_NAME --nodegroup-name $NODEGROUP_NAME --region $AWS_REGION
-
-  deploy-application:
-    runs-on: ubuntu-latest
-    needs: create-cluster
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v2
-        with:
-          version: 'v1.30.2' 
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{env.AWS_REGION}}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-
-      - name: Update kube config
-        run: aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
-
-      - name: Apply Kubernetes configuration
-        run: |
-          kubectl apply -f pods/svc-quick-serve-api.yaml
-          kubectl apply -f pods/configmap-quick-serve-api.yaml
-          kubectl apply -f pods/configmap-quick-serve-db.yaml
-          kubectl apply -f pods/secret-quick-serve-api.yaml
-          kubectl apply -f pods/secret-quick-serve-db.yaml
-          kubectl apply -f pods/quick-serve-api.yaml
-
-      - name: Verify Deployment
-        run: kubectl get pods,svc,configmaps,secrets,deployments,pv,pvc,hpa
+          aws eks wait cluster-active --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+          
