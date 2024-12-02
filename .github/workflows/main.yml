@@ -60,7 +60,7 @@ jobs:
     - name: Run tests
       run: mvn test
       env:
-        SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/backend
-        SPRING_DATASOURCE_USERNAME: root
-        SPRING_DATASOURCE_PASSWORD: toor
+        SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/backOrders
+        SPRING_DATASOURCE_USERNAME: postgres
+        SPRING_DATASOURCE_PASSWORD: 123456
         SPRING_JPA_HIBERNATE_DDL_AUTO: update
