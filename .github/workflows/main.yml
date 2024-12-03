@@ -20,6 +20,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '17'  # Define o JDK 17
+        distribution: 'adoptopenjdk'  # Adiciona a distribuição
 
     - name: Set up Docker
       uses: docker/setup-buildx-action@v2
@@ -40,4 +41,3 @@ jobs:
 
     - name: Run Cucumber tests
       run: mvn test -Dcucumber.options="--tags @yourTag"
-      
