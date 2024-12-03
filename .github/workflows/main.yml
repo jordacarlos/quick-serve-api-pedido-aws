@@ -29,16 +29,21 @@ jobs:
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
-        java-version: '17'  # Define o JDK 17
-        distribution: 'temurin'  # Alterado para temurin
+        java-version: '17'
+        distribution: 'temurin'
 
     - name: Set up Docker
       uses: docker/setup-buildx-action@v2
 
+    - name: Install Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-compose
+
     - name: Build Docker image
       run: docker build -t jordajesus/quick-serve-api-pedido:1.0 .
 
-    - name: Run Docker container with PostgreSQL
+    - name: Run Docker container with PostgreSQL using bd-compose.yml
       run: |
         docker-compose -f bd-compose.yml up -d
 
