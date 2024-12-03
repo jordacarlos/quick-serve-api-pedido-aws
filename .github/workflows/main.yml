@@ -3,14 +3,14 @@ name: CI/CD Workflow
 on:
   push:
     branches:
-      - main  # ou outra branch que você deseje
+      - main
   pull_request:
     branches:
-      - main  # ou outra branch que você deseje
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Usa o runner do GitHub Actions com Ubuntu
 
     steps:
     - name: Checkout code
@@ -24,11 +24,13 @@ jobs:
 
     - name: Run Docker container
       run: |
+        # Executa o container em segundo plano, expondo a porta 8080
         docker run -d -p 8080:8080 jordajesus/quick-serve-api-pedido:1.0
 
     - name: Wait for application to be ready
       run: |
-        until curl --silent --fail http://localhost:8080/health; do
+        # Aguarda até que a porta 8080 esteja aberta no container (via localhost)
+        until nc -zv localhost 8080; do
           echo "Aguardando a aplicação iniciar..."
           sleep 5
         done
