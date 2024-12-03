@@ -15,11 +15,11 @@ jobs:
         ports:
           - 5432:5432
         env:
-          POSTGRES_USER: root
-          POSTGRES_PASSWORD: toor
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 123456
           POSTGRES_DB: backend
         options: >-
-          --health-cmd="pg_isready -U root"
+          --health-cmd="pg_isready -U postgres"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -38,6 +38,8 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '11'
+        distribution: 'adoptopenjdk'  # Adicione o parâmetro distribution
+        check-latest: false
 
     - name: Build with Maven
       run: mvn clean install
