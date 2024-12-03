@@ -12,6 +12,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 123456
+          POSTGRES_DB: backOrders
+        ports:
+          - 5432:5432
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -28,9 +38,9 @@ jobs:
     - name: Build Docker image
       run: docker build -t jordajesus/quick-serve-api-pedido:1.0 .
 
-    - name: Run Docker container
+    - name: Run Docker container with PostgreSQL
       run: |
-        docker run -d -p 8080:8080 jordajesus/quick-serve-api-pedido:1.0
+        docker-compose -f bd-compose.yml up -d
 
     - name: Wait for application to be ready
       run: |
