@@ -32,10 +32,10 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '11'
-          distribution: 'temurin'  # Usando a distribuição Temurin para o JDK 11
+          distribution: 'temurin'
           
-      - name: Instalar dependências
-        run: ./mvn clean install -DskipTests
+      - name: Rodar comandos Maven
+        run: mvn clean verify -P '!integration-test'  # Usando o mvn diretamente, sem o Maven Wrapper
 
       - name: Rodar testes de integração com Cucumber
-        run: ./mvn test -Dcucumber.options="--tags @testeBDD"
+        run: mvn test -Dcucumber.options="--tags @testeBDD"  # Usando o mvn diretamente, sem o Maven Wrapper
