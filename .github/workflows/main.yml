@@ -32,7 +32,8 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '11'
-
+          distribution: 'adoptopenjdk'  # Defina a distribuição do JDK
+          
       - name: Instalar dependências
         run: ./mvnw clean install -DskipTests
 
