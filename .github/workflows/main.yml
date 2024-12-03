@@ -1,41 +1,46 @@
-name: Testes de Integração com PostgreSQL
+name: Run Integration Tests
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
+    
     services:
       postgres:
-        image: postgres:14
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 123456
-          POSTGRES_DB: backOrders
+        image: postgres:latest
         ports:
           - 5432:5432
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: toor
+          POSTGRES_DB: backend
         options: >-
-          --health-cmd="pg_isready -U postgres" --health-interval=10s --health-timeout=5s --health-retries=5
+          --health-cmd="pg_isready -U root"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
-      - name: Checar o código
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Configurar o JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'  # Atualizando para a versão 17
-          distribution: 'temurin'
+    - name: Set up environment variables
+      run: |
+        echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/backend" >> $GITHUB_ENV
+        echo "SPRING_DATASOURCE_USERNAME=postgres" >> $GITHUB_ENV
+        echo "SPRING_DATASOURCE_PASSWORD=123456" >> $GITHUB_ENV
 
-      - name: Rodar comandos Maven
-        run: mvn clean verify -P '!integration-test'  # Usando o mvn diretamente, sem o Maven Wrapper
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
 
-      - name: Rodar testes de integração com Cucumber
-        run: mvn test -Dcucumber.options="--tags @testeBDD"  # Usando o mvn diretamente, sem o Maven Wrapper
+    - name: Build with Maven
+      run: mvn clean install
+
+    - name: Run Integration Tests
+      run: mvn test
