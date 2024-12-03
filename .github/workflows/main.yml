@@ -28,12 +28,12 @@ jobs:
       - name: Checar o código
         uses: actions/checkout@v3
 
-      - name: Configurar o JDK
+      - name: Configurar o JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '11'
+          java-version: '17'  # Atualizando para a versão 17
           distribution: 'temurin'
-          
+
       - name: Rodar comandos Maven
         run: mvn clean verify -P '!integration-test'  # Usando o mvn diretamente, sem o Maven Wrapper
 
