@@ -32,10 +32,10 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '11'
-          distribution: 'temurin'  # Substitua 'adoptopenjdk' por 'temurin'
+          distribution: 'temurin'  # Usando a distribuição Temurin para o JDK 11
           
       - name: Instalar dependências
-        run: ./mvnw clean install -DskipTests
+        run: ./mvn clean install -DskipTests
 
       - name: Rodar testes de integração com Cucumber
-        run: ./mvnw test -Dcucumber.options="--tags @testeBDD"
+        run: ./mvn test -Dcucumber.options="--tags @testeBDD"
