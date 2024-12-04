@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 env:
-  CLUSTER_NAME: EKS-QUICK-SERVE-PEDIDO
+  CLUSTER_NAME: EKS-QUICK-SERVE-PRODUCAO
   AWS_REGION: us-east-1
   NODEGROUP_NAME: quick-serve
   VPC_ID: vpc-08325c03e3c0c4699
